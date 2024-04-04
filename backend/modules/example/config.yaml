@@ -1,0 +1,12 @@
+# Example of a config file
+
+git-info:
+* repo-link
+* branch (default: main)
+* commit (default: latest)
+* dev (boolean)
+
+exe:
+* command-name
+* flags:
+	* (lista de flags par-chave e tipo do valor)
