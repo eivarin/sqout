@@ -1,16 +1,106 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v2"
 )
+
+type Config struct {
+	GitInfo struct {
+		RepoLink string `yaml:"repo-link"`
+		Branch   string `yaml:"branch"`
+		Commit   string `yaml:"commit"`
+		Dev      bool   `yaml:"dev"`
+	} `yaml:"git-info"`
+	Exe struct {
+		CommandName string `yaml:"command-name"`
+		Flags       []Flag `yaml:"flags"`
+	} `yaml:"exe"`
+}
+
+type Flag struct {
+	Name  string `yaml:"name"`
+	Type  string `yaml:"type"`
+	Value string `yaml:"value"`
+}
 
 func main() {
 	r := gin.Default()
+
 	r.GET("/ping", func(c *gin.Context) {
+		// Open the YAML file
+		file, err := os.Open("modules/ping/config.yaml")
+		if err != nil {
+			log.Fatalf("Error opening file: %v", err)
+		}
+		defer file.Close()
+
+		// Decode YAML data
+		var config Config
+		err = yaml.NewDecoder(file).Decode(&config)
+		if err != nil {
+			log.Fatalf("Error decoding YAML: %v", err)
+		}
+
+		// Extract the value of exe: command-name
+		commandName := config.Exe.CommandName
+		fmt.Println("Command name:", commandName)
+
+		fmt.Println("Flags:")
+		var length = len(config.Exe.Flags)
+		var args []string = make([]string, length)
+		for i := 0; i < length; i++ {
+			args[i] = config.Exe.Flags[i].Value
+			fmt.Printf("- Name: %s, Type: %s, Default: %v\n", config.Exe.Flags[i].Name, config.Exe.Flags[i].Type, config.Exe.Flags[i].Value)
+		}
+		// how to implement a pipe ?
+		c1 := exec.Command(commandName, args...)
+		c2 := exec.Command("modules/ping/parse.sh")
+
+		b := new(strings.Builder)
+
+		c2.Stdin, _ = c1.StdoutPipe()
+		c2.Stdout = b
+		_ = c2.Start()
+		_ = c1.Run()
+		_ = c2.Wait()
+
+		// print the output
+		fmt.Println("Output: ", b.String())
+
+		str := b.String()
+
+		// Define a slice of structs to hold the parsed data
+		var data []map[string]string
+
+		// Unmarshal the string into the slice of structs
+		err = json.Unmarshal([]byte(str), &data)
+		if err != nil {
+			fmt.Println("Error Unmarshal:", err)
+			return
+		}
+
+		// Print the JSON data
+		jsonData, err := json.MarshalIndent(data, "", "  ")
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println(string(jsonData))
+
+		// POST the json data to the mongoDB
+
+		// Return the JSON data
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": string(jsonData),
 		})
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
