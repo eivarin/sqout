@@ -1,7 +1,0 @@
-[
-{"IP Address": "127.0.0.1", "ICMP Sequence": "1", "TTL": "64", "Time": "0.070"},
-{"IP Address": "127.0.0.1", "ICMP Sequence": "2", "TTL": "64", "Time": "0.049"},
-{"IP Address": "127.0.0.1", "ICMP Sequence": "3", "TTL": "64", "Time": "0.059"},
-{"IP Address": "127.0.0.1", "ICMP Sequence": "4", "TTL": "64", "Time": "0.035"},
-{"IP Address": "127.0.0.1", "ICMP Sequence": "5", "TTL": "64", "Time": "0.059"}
-]
