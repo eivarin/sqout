@@ -57,12 +57,11 @@ func GetAllModules(ctx context.Context) ([]ModuleConfig, error) {
 func GetOneModule(ctx context.Context, id string) (ModuleConfig, error) {
 	s := RandFuncs.GetContext(ctx)
 	var mc ModuleConfig
-	err := s.ModulesCol.Col.FindOne(ctx, bson.E{Key: "_id",Value:  id}).Decode(&mc)
+	err := s.ModulesCol.Col.FindOne(ctx, bson.M{"_id": id}).Decode(&mc)
 	if err != nil {
 		fmt.Printf("Error getting module with id %s\n", id)
 		return mc, err
 	}
-	fmt.Printf("Got module with id %s: %v\n", id, mc)
 	return mc, nil
 }
 
@@ -93,40 +92,50 @@ func AddNewModule(ctx context.Context, path string, branch string, commit string
 	return nil
 }
 
-func Update(ctx context.Context, Name string, Branch string, Commit string) {
+func Update(ctx context.Context, Name string, Branch string, Commit string) error {
 	s := RandFuncs.GetContext(ctx)
 	toChange, _ := GetOneModule(ctx, Name)
 	toChange.ChangeVersion(Branch, Commit)
-	s.ModulesCol.Col.FindOneAndReplace(ctx, bson.E{Key: "_id", Value: Name}, toChange)
+	res := s.ModulesCol.Col.FindOneAndReplace(ctx, bson.M{"_id": Name}, toChange)
+	if res.Err() != nil {
+		return res.Err()
+	}
+	return nil
 }
 
-func Delete(ctx context.Context, name string) {
+func Delete(ctx context.Context, name string) error {
 	s := RandFuncs.GetContext(ctx)
-	s.ModulesCol.Col.FindOneAndDelete(ctx, bson.E{Key: "_id", Value: name})
+	// var mc ModuleConfig
+	res := s.ModulesCol.Col.FindOneAndDelete(ctx, bson.M{"_id": name})
+	if res.Err() != nil {
+		return res.Err()
+	}
 	cmd := exec.Command("rm", "-rf", "./modules/"+name)
 	cmd.Run()
+	return nil
+}
+
+func runCMD(runningPath string, args []string) {
+	command := exec.Command(args[0], args[1:]...)
+	fmt.Printf("Running command: %s\n", command.String())
+	command.Dir = runningPath
+	command.Run()
 }
 
 func (mc *ModuleConfig) ChangeVersion(branch string, commit string) {
-	if !mc.IsRepo {
+	if mc.IsRepo {
 		runningPath := "./modules/" + mc.Id
-		cmd := exec.Command("git", "fetch", "origin")
-		cmd.Dir = runningPath
-		cmd.Run()
+		if branch != "" || commit != "" {
+			runCMD(runningPath, []string{"git", "checkout", "."})
+			runCMD(runningPath, []string{"git", "fetch", "origin"})
+		}
 		if branch != ""{
 			mc.GitInfo.Branch = branch
-			cmd = exec.Command("git", "switch", mc.GitInfo.Branch)
-			cmd.Dir = runningPath
-			cmd.Run()
+			runCMD(runningPath, []string{"git", "checkout", mc.GitInfo.Branch})
 		}
-		cmd = exec.Command("git", "pull")
-		cmd.Dir = runningPath
-		cmd.Run()
 		if commit != "" {
 			mc.GitInfo.Commit = commit
-			cmd = exec.Command("git", "checkout", mc.GitInfo.Commit)
-			cmd.Dir = runningPath
-			cmd.Run()
+			runCMD(runningPath, []string{"git", "checkout", mc.GitInfo.Commit})
 		}
 	}
 	mc.Reload()

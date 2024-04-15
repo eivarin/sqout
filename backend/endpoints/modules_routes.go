@@ -10,15 +10,29 @@ import (
 )
 
 func SetupModulesRoutes(r *gin.Engine) {
-	r.GET("/modules", getModule)
-	r.DELETE("/modules/:name", deleteModule)
-	r.POST("/modules", postModule)
-	r.PUT("/modules", putModule)
+	r.GET("/modules", get)
+	r.GET("/modules/:name", getOne)
+	r.DELETE("/modules/:name", delete)
+	r.POST("/modules", post)
+	r.PUT("/modules", put)
 }
 
-func getModule(ctx *gin.Context) {
+func get(ctx *gin.Context) {
 	list, _ := ModuleConfig.GetAllModules(ctx)
 	ctx.JSON(http.StatusOK, list)
+}
+
+func getOne(ctx *gin.Context) {
+	name := ctx.Param("name")
+	// replace %2f with / to allow for nested paths
+	name, _ = url.PathUnescape(name)
+	fmt.Printf("Getting module: %s\n", name)
+	module, err := ModuleConfig.GetOneModule(ctx, name)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
+		return
+	}
+	ctx.JSON(http.StatusOK, module)
 }
 
 type PutBody struct {
@@ -27,21 +41,31 @@ type PutBody struct {
 	Commit string `json:"Commit"`
 }
 
-func putModule(ctx *gin.Context) {
+func put(ctx *gin.Context) {
 	var body PutBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		fmt.Print("AAAAAAAAAAAAAAAAA	")
 	}
-	ModuleConfig.Update(ctx, body.Name, body.Branch, body.Commit)
+	err := ModuleConfig.Update(ctx, body.Name, body.Branch, body.Commit)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
+		return
+	}
+	ctx.JSON(http.StatusOK, "Module updated successfully!")
 }
 
 
-func deleteModule(c *gin.Context) {
+func delete(c *gin.Context) {
 	name := c.Param("name")
 	// replace %2f with / to allow for nested paths
 	name, _ = url.PathUnescape(name)
 	fmt.Printf("Deleting module: %s\n", name)
-	ModuleConfig.Delete(c, name)
+	err := ModuleConfig.Delete(c, name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
+		return
+	}
+	c.JSON(http.StatusOK, "Module deleted successfully!")
 }
 
 type PostBody struct {
@@ -50,7 +74,7 @@ type PostBody struct {
 	Commit string `json:"Commit"`
 }
 
-func postModule(ctx *gin.Context) {
+func post(ctx *gin.Context) {
 	var body PostBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		fmt.Print("AAAAAAAAAAAAAAAAA	")
