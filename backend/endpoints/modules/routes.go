@@ -1,33 +1,41 @@
-package endpoints
+package modules
 
 import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sqout/libs/DbApi"
 	"sqout/libs/ModuleConfig"
+	"sqout/libs/State"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupModulesRoutes(r *gin.Engine) {
-	r.GET("/modules", get)
-	r.GET("/modules/:name", getOne)
-	r.DELETE("/modules/:name", delete)
-	r.POST("/modules", post)
-	r.PUT("/modules", put)
+type moduleState struct {
+	ModulesCol *DbApi.ColFacade
 }
 
-func get(ctx *gin.Context) {
-	list, _ := ModuleConfig.GetAllModules(ctx)
+func SetupRoutes(r *gin.Engine, s *State.State) {
+	var ms moduleState
+	ms.ModulesCol = &s.ModulesCol
+	r.GET("/modules", ms.get)
+	r.GET("/modules/:name", ms.getOne)
+	r.DELETE("/modules/:name", ms.delete)
+	r.POST("/modules", ms.post)
+	r.PUT("/modules", ms.put)
+}
+
+func (ms *moduleState) get(ctx *gin.Context) {
+	list, _ := ModuleConfig.GetAllModules(ctx, ms.ModulesCol)
 	ctx.JSON(http.StatusOK, list)
 }
 
-func getOne(ctx *gin.Context) {
+func (ms *moduleState) getOne(ctx *gin.Context) {
 	name := ctx.Param("name")
 	// replace %2f with / to allow for nested paths
 	name, _ = url.PathUnescape(name)
 	fmt.Printf("Getting module: %s\n", name)
-	module, err := ModuleConfig.GetOneModule(ctx, name)
+	module, err := ModuleConfig.GetOneModule(ctx, ms.ModulesCol, name)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
 		return
@@ -41,12 +49,12 @@ type PutBody struct {
 	Commit string `json:"Commit"`
 }
 
-func put(ctx *gin.Context) {
+func (ms *moduleState) put(ctx *gin.Context) {
 	var body PutBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		fmt.Print("AAAAAAAAAAAAAAAAA	")
 	}
-	err := ModuleConfig.Update(ctx, body.Name, body.Branch, body.Commit)
+	err := ModuleConfig.Update(ctx, ms.ModulesCol, body.Name, body.Branch, body.Commit)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
 		return
@@ -54,13 +62,12 @@ func put(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Module updated successfully!")
 }
 
-
-func delete(c *gin.Context) {
+func (ms *moduleState) delete(c *gin.Context) {
 	name := c.Param("name")
 	// replace %2f with / to allow for nested paths
 	name, _ = url.PathUnescape(name)
 	fmt.Printf("Deleting module: %s\n", name)
-	err := ModuleConfig.Delete(c, name)
+	err := ModuleConfig.Delete(c, ms.ModulesCol, name)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Module not found"})
 		return
@@ -74,13 +81,13 @@ type PostBody struct {
 	Commit string `json:"Commit"`
 }
 
-func post(ctx *gin.Context) {
+func (ms *moduleState) post(ctx *gin.Context) {
 	var body PostBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		fmt.Print("AAAAAAAAAAAAAAAAA	")
 	}
 
-	ModuleConfig.AddNewModule(ctx, body.Name, body.Branch, body.Commit)
+	ModuleConfig.AddNewModule(ctx, ms.ModulesCol, body.Name, body.Branch, body.Commit)
 
 	ctx.JSON(http.StatusOK, "Module added successfully!")
 }

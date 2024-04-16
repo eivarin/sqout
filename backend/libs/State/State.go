@@ -3,20 +3,25 @@ package State
 import (
 	"context"
 	"sqout/libs/DbApi"
+	"sqout/libs/Probe"
+	"sqout/libs/TimersMap"
+
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type State struct {
-	dbClient *mongo.Client
+	DbClient   *mongo.Client
 	ModulesCol DbApi.ColFacade
 	ProbesCol  DbApi.ColFacade
+	Timers     TimersMap.TimersMap
 }
-
 
 func InitState(c context.Context) *State {
 	s := new(State)
-	s.dbClient = DbApi.InitDB(c)
-	s.ModulesCol = DbApi.NewColFacade(s.dbClient, "modules")
-	s.ProbesCol = DbApi.NewColFacade(s.dbClient, "probes")
+	s.DbClient = DbApi.InitDB(c)
+	s.ModulesCol = DbApi.NewColFacade(s.DbClient, "modules")
+	s.ProbesCol = DbApi.NewColFacade(s.DbClient, "probes")
+	s.Timers = TimersMap.NewTimersMap()
+	Probe.RestartAllProbes(c, &s.ModulesCol, &s.ProbesCol, &s.Timers)
 	return s
 }

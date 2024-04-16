@@ -1,21 +1,17 @@
 package GinTools
 
 import (
+	"context"
 	"sqout/endpoints"
 	"sqout/libs/State"
 
 	"github.com/gin-gonic/gin"
 )
 
-func initContext(c *gin.Context) {
-	s := State.InitState(c)
-	c.Set("s", s)
-}
-
 func InitGin() {
 	r := gin.Default()
-	r.Use(initContext)
-	endpoints.SetupModulesRoutes(r)
+	s := State.InitState(context.Background())
+	endpoints.SetupRoutes(r, s)
 	r.UseRawPath = true
 	r.UnescapePathValues = false
 	r.Run() // listen and serve on

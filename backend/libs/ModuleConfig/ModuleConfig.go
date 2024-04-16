@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"sqout/libs/RandFuncs"
+	"sqout/libs/DbApi"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"gopkg.in/yaml.v2"
@@ -26,22 +26,21 @@ type ModuleConfig struct {
 type exe struct {
 	CommandName string `yaml:"command-name" bson:"commandName"`
 	Description string `yaml:"description" bson:"description"`
-	keepAlive   bool   `yaml:"keep-alive" bson:"keepAlive"`
-	Flags       []Flag `yaml:"flags" bson:"flags"`
+	KeepAlive   bool   `yaml:"keep-alive" bson:"keepAlive"`
+	FlagsOrder []string `yaml:"flags-order" bson:"flagsOrder"`
+	Flags       map[string]Flag `yaml:"flags" bson:"flags"`
 }
 
 
 type Flag struct {
-	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 	Type        string `yaml:"type"`
 	Required    bool   `yaml:"required"`
 	Prefix      string `yaml:"prefix"`
 }
 
-func GetAllModules(ctx context.Context) ([]ModuleConfig, error) {
-	s := RandFuncs.GetContext(ctx)
-	cursor, err := s.ModulesCol.Col.Find(ctx, bson.D{})
+func GetAllModules(ctx context.Context, mCol *DbApi.ColFacade) ([]ModuleConfig, error) {
+	cursor, err := mCol.Col.Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
@@ -54,10 +53,9 @@ func GetAllModules(ctx context.Context) ([]ModuleConfig, error) {
 	return modules, nil
 }
 
-func GetOneModule(ctx context.Context, id string) (ModuleConfig, error) {
-	s := RandFuncs.GetContext(ctx)
+func GetOneModule(ctx context.Context, mCol *DbApi.ColFacade, id string) (ModuleConfig, error) {
 	var mc ModuleConfig
-	err := s.ModulesCol.Col.FindOne(ctx, bson.M{"_id": id}).Decode(&mc)
+	err := mCol.Col.FindOne(ctx, bson.M{"_id": id}).Decode(&mc)
 	if err != nil {
 		fmt.Printf("Error getting module with id %s\n", id)
 		return mc, err
@@ -65,7 +63,7 @@ func GetOneModule(ctx context.Context, id string) (ModuleConfig, error) {
 	return mc, nil
 }
 
-func AddNewModule(ctx context.Context, path string, branch string, commit string) error {
+func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branch string, commit string) error {
 	fmt.Println("Adding new module")
 	regex := regexp.MustCompile(`(https://)?(www\.)?(github\.com/[a-zA-Z0-9-]+/[a-zA-Z0-9-]+)`)
 	match := regex.FindStringSubmatch(path)
@@ -84,29 +82,28 @@ func AddNewModule(ctx context.Context, path string, branch string, commit string
 	}
 	mc.ChangeVersion(branch, commit)
 
-	//add to database
-	s := RandFuncs.GetContext(ctx)
-	res, _ := s.ModulesCol.Col.InsertOne(ctx, mc)
+	res, _ := mCol.Col.InsertOne(ctx, mc)
 	id := res.InsertedID
 	fmt.Printf("Added module with id %v\n", id)
 	return nil
 }
 
-func Update(ctx context.Context, Name string, Branch string, Commit string) error {
-	s := RandFuncs.GetContext(ctx)
-	toChange, _ := GetOneModule(ctx, Name)
-	toChange.ChangeVersion(Branch, Commit)
-	res := s.ModulesCol.Col.FindOneAndReplace(ctx, bson.M{"_id": Name}, toChange)
+func Update(ctx context.Context, mCol *DbApi.ColFacade, Name string, Branch string, Commit string) error {
+	toChange, _ := GetOneModule(ctx, mCol, Name)
+	err := toChange.ChangeVersion(Branch, Commit)
+	if err != nil {
+		return err
+	}
+	res := mCol.Col.FindOneAndReplace(ctx, bson.M{"_id": Name}, toChange)
 	if res.Err() != nil {
 		return res.Err()
 	}
 	return nil
 }
 
-func Delete(ctx context.Context, name string) error {
-	s := RandFuncs.GetContext(ctx)
+func Delete(ctx context.Context, mCol *DbApi.ColFacade, name string) error {
 	// var mc ModuleConfig
-	res := s.ModulesCol.Col.FindOneAndDelete(ctx, bson.M{"_id": name})
+	res := mCol.Col.FindOneAndDelete(ctx, bson.M{"_id": name})
 	if res.Err() != nil {
 		return res.Err()
 	}
@@ -122,7 +119,7 @@ func runCMD(runningPath string, args []string) {
 	command.Run()
 }
 
-func (mc *ModuleConfig) ChangeVersion(branch string, commit string) {
+func (mc *ModuleConfig) ChangeVersion(branch string, commit string) error {
 	if mc.IsRepo {
 		runningPath := "./modules/" + mc.Id
 		if branch != "" || commit != "" {
@@ -138,8 +135,12 @@ func (mc *ModuleConfig) ChangeVersion(branch string, commit string) {
 			runCMD(runningPath, []string{"git", "checkout", mc.GitInfo.Commit})
 		}
 	}
-	mc.Reload()
+	err := mc.Reload()
+	if err != nil {
+		return err
+	}
 	fmt.Printf("Changed module to branch %s and commit %s\n", branch, commit)
+	return err
 }
 
 func (mc *ModuleConfig) Reload() error {
@@ -187,6 +188,7 @@ func (mc *ModuleConfig) Reload() error {
 	err = yaml.NewDecoder(file).Decode(&parsed)
 	if err != nil {
 		fmt.Println("Error decoding yaml")
+		fmt.Printf("Error: %v\n", err)
 		return err
 	}
 	mc.Exe = parsed
