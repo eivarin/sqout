@@ -1,0 +1,9 @@
+FROM golang:1.22.1
+
+WORKDIR /sqout
+
+COPY . .
+
+RUN go build -o /sqout/sqout
+
+CMD ["/sqout/sqout"]

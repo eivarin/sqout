@@ -9,6 +9,15 @@ services:
       - 27017:27017
     networks:
       - sqout-net
+  backend:
+    build: ./backend
+    environment:
+      MONGO_URI: mongodb://root:example@mongo:27017
+    ports:
+      - 8080:8080
+    networks:
+      - sqout-net
+  
 
 networks:
   sqout-net:
