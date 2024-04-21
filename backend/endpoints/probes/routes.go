@@ -12,8 +12,8 @@ import (
 
 type probeState struct {
 	ModulesCol *DbApi.ColFacade
-	ProbesCol *DbApi.ColFacade
-	Timers    *TimersMap.TimersMap
+	ProbesCol  *DbApi.ColFacade
+	Timers     *TimersMap.TimersMap
 }
 
 func SetupRoutes(r *gin.Engine, s *State.State) {
@@ -35,6 +35,13 @@ type postBody struct {
 	ModuleName       string            `bson:"module"`
 }
 
+// @Summary POST a new probe on the database
+// @Description Run the probe
+// @Tags probes
+// @Accept json
+// @Prouce json
+// @Success 200 {example} json  "probe"
+// @Router /probes [post]
 func (ps *probeState) post(ctx *gin.Context) {
 	var body postBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {

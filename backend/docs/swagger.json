@@ -1,0 +1,72 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "sqout a modular application, implement every metric you want",
+        "title": "sqout",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/modules": {
+            "get": {
+                "description": "get JSON of all the modules",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "modules"
+                ],
+                "summary": "GET all the modules in the database",
+                "responses": {
+                    "200": {
+                        "description": "array of modules",
+                        "schema": {
+                            "type": "example"
+                        }
+                    }
+                }
+            }
+        },
+        "/modules/{module_name}": {
+            "get": {
+                "description": "get JSON of the module",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "modules"
+                ],
+                "summary": "GET specific module in the database",
+                "responses": {
+                    "200": {
+                        "description": "module",
+                        "schema": {
+                            "type": "example"
+                        }
+                    }
+                }
+            }
+        },
+        "/probes": {
+            "post": {
+                "description": "Run the probe",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "probes"
+                ],
+                "summary": "POST a new probe on the database",
+                "responses": {
+                    "200": {
+                        "description": "probe",
+                        "schema": {
+                            "type": "example"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

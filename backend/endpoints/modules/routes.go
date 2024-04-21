@@ -25,11 +25,24 @@ func SetupRoutes(r *gin.Engine, s *State.State) {
 	r.PUT("/modules", ms.put)
 }
 
+// @Summary GET all the modules in the database
+// @Description get JSON of all the modules
+// @Produce  json
+// @Tags modules
+// @Success 200 {example} json  "array of modules"
+// @Router /modules [get]
 func (ms *moduleState) get(ctx *gin.Context) {
 	list, _ := ModuleConfig.GetAllModules(ctx, ms.ModulesCol)
 	ctx.JSON(http.StatusOK, list)
 }
 
+// @Summary GET specific module in the database
+// @Description get JSON of the module
+// @Produce  json
+// @Tags modules
+// @Params name string
+// @Success 200 {example} json  "module"
+// @Router /modules/{module_name} [get]
 func (ms *moduleState) getOne(ctx *gin.Context) {
 	name := ctx.Param("name")
 	// replace %2f with / to allow for nested paths

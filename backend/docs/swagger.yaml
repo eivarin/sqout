@@ -1,0 +1,47 @@
+host: localhost:8080
+info:
+  contact: {}
+  description: sqout a modular application, implement every metric you want
+  title: sqout
+  version: "1.0"
+paths:
+  /modules:
+    get:
+      description: get JSON of all the modules
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: array of modules
+          schema:
+            type: example
+      summary: GET all the modules in the database
+      tags:
+      - modules
+  /modules/{module_name}:
+    get:
+      description: get JSON of the module
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: module
+          schema:
+            type: example
+      summary: GET specific module in the database
+      tags:
+      - modules
+  /probes:
+    post:
+      consumes:
+      - application/json
+      description: Run the probe
+      responses:
+        "200":
+          description: probe
+          schema:
+            type: example
+      summary: POST a new probe on the database
+      tags:
+      - probes
+swagger: "2.0"
