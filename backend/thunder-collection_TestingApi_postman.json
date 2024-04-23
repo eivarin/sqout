@@ -1,135 +1,220 @@
 {
     "info": {
-        "_postman_id": "afd24e40-6063-4284-9dc2-c2358bfa5556",
+        "_postman_id": "0c3188c6-23dd-48b5-b5cf-6652aafc369b",
         "name": "TestingApi",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "description": ""
     },
     "item": [
         {
-            "name": "localhost:8080/modules/:name",
-            "request": {
-                "method": "DELETE",
-                "url": {
-                    "raw": "localhost:8080/modules/github.com%2ftiagopr%2Fsqoutping",
-                    "path": [
-                        "modules",
-                        "github.com%2ftiagopr%2Fsqoutping"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
-                }
-            }
-        },
-        {
-            "name": "localhost:8080/modules just reload",
-            "request": {
-                "method": "PUT",
-                "url": {
-                    "raw": "localhost:8080/modules",
-                    "path": [
-                        "modules"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
+            "name": "Modules",
+            "item": [
+                {
+                    "name": "localhost:8080/modules/:name",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "localhost:8080/modules/github.com%2ftiagopr%2Fsqoutping",
+                            "path": [
+                                "modules",
+                                "github.com%2ftiagopr%2Fsqoutping"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
                         }
-                    },
-                    "raw": "{\n  \"Name\": \"github.com/tiagopr/sqoutping\",\n  \"Branch\": \"\",\n  \"Commit\": \"\"\n}"
-                }
-            }
-        },
-        {
-            "name": "localhost:8080/modules",
-            "request": {
-                "method": "PUT",
-                "url": {
-                    "raw": "localhost:8080/modules",
-                    "path": [
-                        "modules"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
+                    }
                 },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
+                {
+                    "name": "localhost:8080/modules just reload",
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "localhost:8080/modules",
+                            "path": [
+                                "modules"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"Name\": \"github.com/tiagopr/sqoutping\",\n  \"Branch\": \"\",\n  \"Commit\": \"\"\n}"
                         }
-                    },
-                    "raw": "{\n  \"Name\": \"github.com/tiagopr/sqoutping\",\n  \"Branch\": \"Main\",\n  \"Commit\": \"c4754d7\"\n}"
-                }
-            }
-        },
-        {
-            "name": "localhost:8080/modules",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "localhost:8080/modules",
-                    "path": [
-                        "modules"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
+                    }
                 },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
+                {
+                    "name": "localhost:8080/modules",
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "localhost:8080/modules",
+                            "path": [
+                                "modules"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"Name\": \"github.com/tiagopr/sqoutping\",\n  \"Branch\": \"Main\",\n  \"Commit\": \"c4754d7\"\n}"
                         }
-                    },
-                    "raw": "{\n  \"Name\": \"https://github.com/tiagopr/sqoutping\",\n  \"Branch\": \"Main\",\n  \"Commit\": \"2639b86\"\n}"
+                    }
+                },
+                {
+                    "name": "localhost:8080/modules",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "localhost:8080/modules",
+                            "path": [
+                                "modules"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"Name\": \"https://github.com/tiagopr/sqoutping\",\n  \"Branch\": \"Main\",\n  \"Commit\": \"ad63fb1\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "localhost:8080/modules",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "localhost:8080/modules",
+                            "path": [
+                                "modules"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        }
+                    }
+                },
+                {
+                    "name": "localhost:8080/modules/:name",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "localhost:8080/modules/github.com%2ftiagopr%2Fsqoutping",
+                            "path": [
+                                "modules",
+                                "github.com%2ftiagopr%2Fsqoutping"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        }
+                    }
                 }
-            }
+            ]
         },
         {
-            "name": "localhost:8080/modules",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "localhost:8080/modules",
-                    "path": [
-                        "modules"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
+            "name": "Probes",
+            "item": [
+                {
+                    "name": "localhost:8080/probes",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "localhost:8080/probes",
+                            "path": [
+                                "probes"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"Name\": \"MYPROBE\",\n  \"Description\": \"lalallala\",\n  \"Options\": {\n    \"timeout\": \"100\",\n    \"destination\": \"1.1.1.1\",\n    \"count\": \"5\"\n  },\n  \"HeartbitInterval\": 10,\n  \"ModuleName\": \"github.com/tiagopr/sqoutping\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "localhost:8080/probes",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "localhost:8080/probes/",
+                            "path": [
+                                "probes"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        }
+                    }
+                },
+                {
+                    "name": "localhost:8080/probes/MYPROBE",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "localhost:8080/probes/MYPROBE",
+                            "path": [
+                                "probes",
+                                "MYPROBE"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        }
+                    }
+                },
+                {
+                    "name": "localhost:8080/probes/MYPROBE",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "localhost:8080/probes/MYPROBE",
+                            "path": [
+                                "probes",
+                                "MYPROBE"
+                            ],
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080"
+                        }
+                    }
                 }
-            }
-        },
-        {
-            "name": "localhost:8080/modules/:name",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "localhost:8080/modules/github.com%2ftiagopr%2Fsqoutping",
-                    "path": [
-                        "modules",
-                        "github.com%2ftiagopr%2Fsqoutping"
-                    ],
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8080"
-                }
-            }
+            ]
         }
     ]
 }
