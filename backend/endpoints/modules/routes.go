@@ -26,10 +26,11 @@ func SetupRoutes(r *gin.Engine, s *State.State) {
 }
 
 // @Summary GET all the modules in the database
-// @Description get JSON of all the modules
+// @Description Get JSON of all the modules
+// @Accept json
 // @Produce  json
 // @Tags modules
-// @Success 200 {example} json  "array of modules"
+// @Success 200 {object} []ModuleConfig.ModuleConfig  "Array of existing modules"
 // @Router /modules [get]
 func (ms *moduleState) get(ctx *gin.Context) {
 	list, _ := ModuleConfig.GetAllModules(ctx, ms.ModulesCol)
@@ -37,11 +38,13 @@ func (ms *moduleState) get(ctx *gin.Context) {
 }
 
 // @Summary GET specific module in the database
-// @Description get JSON of the module
+// @Description Get JSON of a given module name
+// @Accept json
 // @Produce  json
+// @Param name body string true "Module Name"
 // @Tags modules
 // @Params name string
-// @Success 200 {example} json  "module"
+// @Success 200 {object} ModuleConfig.ModuleConfig  "Module"
 // @Router /modules/{module_name} [get]
 func (ms *moduleState) getOne(ctx *gin.Context) {
 	name := ctx.Param("name")
@@ -62,6 +65,13 @@ type PutBody struct {
 	Commit string `json:"Commit"`
 }
 
+// @Summary PUT update a given module in the database
+// @Description Update the JSON of the matching module
+// @Accept json
+// @Produce json
+// @Tags modules
+// @Success 200 {string} string "Module updated successfully!"
+// @Router /modules [put]
 func (ms *moduleState) put(ctx *gin.Context) {
 	var body PutBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -75,6 +85,14 @@ func (ms *moduleState) put(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Module updated successfully!")
 }
 
+// @Summary DELETE a given module in the database
+// @Description Delete the module with the given name
+// @Accept json
+// @Produce  json
+// @Param name body string true "Module Name"
+// @Tags modules
+// @Success 200 {string} string "Module deleted successfully!"
+// @Router /modules/{module_name} [delete]
 func (ms *moduleState) delete(c *gin.Context) {
 	name := c.Param("name")
 	// replace %2f with / to allow for nested paths
@@ -94,6 +112,14 @@ type PostBody struct {
 	Commit string `json:"Commit"`
 }
 
+// @Summary POST a new module in the database
+// @Description Add a new module
+// @Accept json
+// @Produce json
+// @Param module body ModuleConfig.ModuleConfig object "Module to be added"
+// @Tags modules
+// @Success 200 {string} string "Module added successfully"
+// @Router /modules [post]
 func (ms *moduleState) post(ctx *gin.Context) {
 	var body PostBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {

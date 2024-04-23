@@ -10,6 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Custom response model for Swagger documentation because of bson.A
+type ProbeResponse struct {
+	Name             string            `json:"_id"`
+	Description      string            `json:"description"`
+	Options          map[string]string `json:"options"`
+	HeartbitInterval int               `json:"heartbitInterval"`
+	Module           string            `json:"module"`
+	Results          []interface{}     `json:"results"` // swagger can't find type definitiion bson.a
+	Alive            bool              `json:"alive"`
+}
+
 type probeState struct {
 	ModulesCol *DbApi.ColFacade
 	ProbesCol  *DbApi.ColFacade
@@ -36,11 +47,12 @@ type postBody struct {
 }
 
 // @Summary POST a new probe on the database
-// @Description Run the probe
+// @Description Create a new probe and run it
 // @Tags probes
 // @Accept json
-// @Prouce json
-// @Success 200 {example} json  "probe"
+// @Produce json
+// @Param body body postBody true "Probe information"
+// @Success 200 {string} string "Probe created successfully!"
 // @Router /probes [post]
 func (ps *probeState) post(ctx *gin.Context) {
 	var body postBody
@@ -56,6 +68,14 @@ func (ps *probeState) post(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Probe created successfully!")
 }
 
+// @Summary GET all probes
+// @Description Retrieve all probes
+// @Tags probes
+// @Accept json
+// @Produce json
+// @Param includeResults query bool false "Include results in response"
+// @Success 200 {object} []ProbeResponse "List of probes"
+// @Router /probes [get]
 func (ps *probeState) get(ctx *gin.Context) {
 	includeResults := ctx.Query("includeResults") == "true"
 	probes, err := Probe.GetAllProbes(ctx, ps.ProbesCol, includeResults)
@@ -66,6 +86,15 @@ func (ps *probeState) get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, probes)
 }
 
+// @Summary GET a specific probe by name
+// @Description Retrieve a specific probe by its name
+// @Tags probes
+// @Accept json
+// @Produce json
+// @Param name path string true "Probe Name"
+// @Param includeResults query bool false "Include results in response"
+// @Success 200 {object} ProbeResponse "Probe details"
+// @Router /probes/{name} [get]
 func (ps *probeState) getOne(ctx *gin.Context) {
 	name := ctx.Param("name")
 	includeResults := ctx.Query("includeResults") == "true"
@@ -77,6 +106,14 @@ func (ps *probeState) getOne(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, probe)
 }
 
+// @Summary DELETE a probe by name
+// @Description Delete a probe by its name
+// @Tags probes
+// @Accept json
+// @Produce json
+// @Param name path string true "Probe Name"
+// @Success 200 {string} string "Probe deleted successfully!"
+// @Router /probes/{name} [delete]
 func (ps *probeState) delete(c *gin.Context) {
 	name := c.Param("name")
 	err := Probe.DeleteProbe(c, ps.ProbesCol, name)

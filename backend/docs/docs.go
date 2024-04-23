@@ -17,7 +17,10 @@ const docTemplate = `{
     "paths": {
         "/modules": {
             "get": {
-                "description": "get JSON of all the modules",
+                "description": "Get JSON of all the modules",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -27,9 +30,64 @@ const docTemplate = `{
                 "summary": "GET all the modules in the database",
                 "responses": {
                     "200": {
-                        "description": "array of modules",
+                        "description": "Array of existing modules",
                         "schema": {
-                            "type": "example"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ModuleConfig.ModuleConfig"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the JSON of the matching module",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "modules"
+                ],
+                "summary": "PUT update a given module in the database",
+                "responses": {
+                    "200": {
+                        "description": "Module updated successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new module",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "modules"
+                ],
+                "summary": "POST a new module in the database",
+                "parameters": [
+                    {
+                        "description": "Module to be added",
+                        "name": "module",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ModuleConfig.ModuleConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Module added successfully",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -37,7 +95,10 @@ const docTemplate = `{
         },
         "/modules/{module_name}": {
             "get": {
-                "description": "get JSON of the module",
+                "description": "Get JSON of a given module name",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -45,32 +106,316 @@ const docTemplate = `{
                     "modules"
                 ],
                 "summary": "GET specific module in the database",
+                "parameters": [
+                    {
+                        "description": "Module Name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "module",
+                        "description": "Module",
                         "schema": {
-                            "type": "example"
+                            "$ref": "#/definitions/ModuleConfig.ModuleConfig"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the module with the given name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "modules"
+                ],
+                "summary": "DELETE a given module in the database",
+                "parameters": [
+                    {
+                        "description": "Module Name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Module deleted successfully!",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
             }
         },
         "/probes": {
-            "post": {
-                "description": "Run the probe",
+            "get": {
+                "description": "Retrieve all probes",
                 "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "probes"
+                ],
+                "summary": "GET all probes",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Include results in response",
+                        "name": "includeResults",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of probes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/probes.ProbeResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new probe and run it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "probes"
                 ],
                 "summary": "POST a new probe on the database",
+                "parameters": [
+                    {
+                        "description": "Probe information",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/probes.postBody"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "probe",
+                        "description": "Probe created successfully!",
                         "schema": {
-                            "type": "example"
+                            "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/probes/{name}": {
+            "get": {
+                "description": "Retrieve a specific probe by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "probes"
+                ],
+                "summary": "GET a specific probe by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Probe Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include results in response",
+                        "name": "includeResults",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Probe details",
+                        "schema": {
+                            "$ref": "#/definitions/probes.ProbeResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a probe by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "probes"
+                ],
+                "summary": "DELETE a probe by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Probe Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Probe deleted successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ModuleConfig.Flag": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "ModuleConfig.ModuleConfig": {
+            "type": "object",
+            "properties": {
+                "exe": {
+                    "$ref": "#/definitions/ModuleConfig.exe"
+                },
+                "gitInfo": {
+                    "type": "object",
+                    "properties": {
+                        "branch": {
+                            "type": "string"
+                        },
+                        "commit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isRepo": {
+                    "type": "boolean"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "ModuleConfig.exe": {
+            "type": "object",
+            "properties": {
+                "commandName": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "flags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ModuleConfig.Flag"
+                    }
+                },
+                "flagsOrder": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "keepAlive": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "probes.ProbeResponse": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "alive": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "heartbitInterval": {
+                    "type": "integer"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "results": {
+                    "description": "swagger can't find type definitiion bson.a",
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "probes.postBody": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "heartbitInterval": {
+                    "type": "integer"
+                },
+                "moduleName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
                     }
                 }
             }
