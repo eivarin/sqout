@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { page } from '$app/stores';
-	import type { Module, Probe } from '$lib';
-    export let data: { probe: Probe, module: Module };
-    const p = data.probe
-	const m = data.module
-    let flags = m.Exe.FlagsOrder.map((name) => ({ name, f: m.Exe.Flags[name] }));
+	import type { Module } from '$lib';
+	export let data: {
+		module: Module;
+	};
+	let m = data.module;
+	let flags = m.Exe.FlagsOrder.map((name) => ({ name, f: m.Exe.Flags[name] }));
 	let formValues: {
 		name: string;
 		description: string;
@@ -14,13 +14,13 @@
 			[key: string]: string;
 		};
 	} = {
-		name: p.Name ?? '',
-		description: p.Description ?? '',
-		heartbit: p.HeartbitInterval ?? 0,
-		module: p.Module ?? '',
+		name: '',
+		description: '',
+		heartbit: 0,
+		module: m.Id,
 		options: {}
 	};
-	formValues.options = Object.fromEntries(flags.map(({ name }) => [name, p.Options[name] ?? '']));
+	formValues.options = Object.fromEntries(flags.map(({ name }) => [name, '']));
 </script>
 
 <form method="POST" class="w-full">
@@ -33,8 +33,7 @@
 			name="name"
 			placeholder="Type here"
 			class="input input-bordered w-full"
-			value={formValues.name}
-			readonly
+			required
 		/>
 	</label>
 	<label class="form-control grow px-4">
@@ -46,8 +45,7 @@
 			name="description"
 			placeholder="Type here"
 			class="input input-bordered w-full"
-			value={formValues.description}
-            readonly
+            required
 		/>
 	</label>
 	<label class="form-control grow px-4">
@@ -61,8 +59,8 @@
 			name="heartbit"
 			placeholder="Type here"
 			class="input input-bordered w-full"
-			value={formValues.heartbit}
-			readonly
+			disabled={m.Exe.KeepAlive}
+            required={!m.Exe.KeepAlive}
 		/>
 	</label>
 	<div class="grow px-4">
@@ -83,7 +81,7 @@
 					placeholder="Type here"
 					class="input input-bordered w-full"
 					bind:value={formValues.options[name]}
-					readonly
+					required={f.Required}
 				/>
 			</label>
 		{/each}
@@ -93,7 +91,7 @@
 		<div class="label">
 			<span class="label-text">Preview of the command:</span>
 		</div>
-		<textarea name="" id="" class="textarea input-bordered" readonly>
+		<textarea name="" id="" class="textarea input-bordered" disabled>
 {m.Exe.CommandName} {Object.entries(formValues.options)
     .map(([key, value]) => {
         if (m.Exe.Flags[key].Required && value == '')
@@ -104,8 +102,7 @@
     .join(' ')}
 		</textarea>
 	</label>
-	<div class="grow p-4 flex gap-4">
-		<!-- <button type="submit" class="btn btn-info grow">Edit</button> -->
-		<button type="submit" formaction="?/Delete" class="btn btn-error grow">Delete</button>
+	<div class="grow p-4">
+		<button type="submit" class="btn btn-primary w-full">Create</button>
 	</div>
 </form>

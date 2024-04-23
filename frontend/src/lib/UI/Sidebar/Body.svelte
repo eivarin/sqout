@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
+	import type { Probe } from '$lib';
 	import ProbeList from './ProbeList.svelte';
+	export let Probes: Probe[];
 </script>
 
 <div class="w-72 bg-secondary text-secondary-content flex flex-col items-center shadow-lg">
@@ -8,7 +10,7 @@
 	</a>
 	<div class="divider divider-base-200 px-4 mt-6 h-4">Probes</div>
 	<div class="grow max-h-[calc(100%-19rem)] overflow-auto shadow-inner shadow-gray-600 w-full py-4 scrollbar">
-		<ProbeList />
+		<ProbeList probes={Probes}/>
 	</div>
 	<div class="divider divider-base-200 px-4 mt-6"></div>
 	<div class="w-full px-2 pb-2">

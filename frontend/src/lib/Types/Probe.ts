@@ -1,7 +1,8 @@
 export interface Probe {
-    id: string;
-    name: string;
-    type: string;
-    description: string;
-    running: boolean;
-};
+    Name: string;
+    Description: string;
+    Options: { [key: string]: string };
+    HeartbitInterval: number;
+    Module: string;
+    Alive: boolean;
+}
