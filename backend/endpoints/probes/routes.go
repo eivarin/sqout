@@ -83,6 +83,9 @@ func (ps *probeState) get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if probes == nil {
+		probes = []Probe.Probe{}
+	}
 	ctx.JSON(http.StatusOK, probes)
 }
 
