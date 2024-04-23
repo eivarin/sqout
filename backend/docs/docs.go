@@ -79,7 +79,7 @@ const docTemplate = `{
                         "name": "module",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ModuleConfig.ModuleConfig"
+                            "$ref": "#/definitions/modules.PostBody"
                         }
                     }
                 ],
@@ -108,13 +108,11 @@ const docTemplate = `{
                 "summary": "GET specific module in the database",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Module Name",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -140,13 +138,11 @@ const docTemplate = `{
                 "summary": "DELETE a given module in the database",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Module Name",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -301,6 +297,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "isEmpty": {
+                    "type": "boolean"
+                },
                 "prefix": {
                     "type": "string"
                 },
@@ -363,6 +362,20 @@ const docTemplate = `{
                 },
                 "keepAlive": {
                     "type": "boolean"
+                }
+            }
+        },
+        "modules.PostBody": {
+            "type": "object",
+            "properties": {
+                "Branch": {
+                    "type": "string"
+                },
+                "Commit": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
                 }
             }
         },

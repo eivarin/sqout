@@ -3,6 +3,8 @@ definitions:
     properties:
       description:
         type: string
+      isEmpty:
+        type: boolean
       prefix:
         type: string
       required:
@@ -44,6 +46,15 @@ definitions:
         type: array
       keepAlive:
         type: boolean
+    type: object
+  modules.PostBody:
+    properties:
+      Branch:
+        type: string
+      Commit:
+        type: string
+      Name:
+        type: string
     type: object
   probes.ProbeResponse:
     properties:
@@ -114,7 +125,7 @@ paths:
         in: body
         name: module
         schema:
-          $ref: '#/definitions/ModuleConfig.ModuleConfig'
+          $ref: '#/definitions/modules.PostBody'
       produces:
       - application/json
       responses:
@@ -146,11 +157,10 @@ paths:
       description: Delete the module with the given name
       parameters:
       - description: Module Name
-        in: body
+        in: path
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:
@@ -167,11 +177,10 @@ paths:
       description: Get JSON of a given module name
       parameters:
       - description: Module Name
-        in: body
+        in: path
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:
