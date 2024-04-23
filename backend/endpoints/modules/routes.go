@@ -34,7 +34,7 @@ func SetupRoutes(r *gin.Engine, s *State.State) {
 // @Router /modules [get]
 func (ms *moduleState) get(ctx *gin.Context) {
 	list, _ := ModuleConfig.GetAllModules(ctx, ms.ModulesCol)
-	if list == nil{
+	if list == nil {
 		list = []ModuleConfig.ModuleConfig{}
 	}
 	ctx.JSON(http.StatusOK, list)
@@ -44,7 +44,7 @@ func (ms *moduleState) get(ctx *gin.Context) {
 // @Description Get JSON of a given module name
 // @Accept json
 // @Produce  json
-// @Param name body string true "Module Name"
+// @Param name path string true "Module Name"
 // @Tags modules
 // @Params name string
 // @Success 200 {object} ModuleConfig.ModuleConfig  "Module"
@@ -92,7 +92,7 @@ func (ms *moduleState) put(ctx *gin.Context) {
 // @Description Delete the module with the given name
 // @Accept json
 // @Produce  json
-// @Param name body string true "Module Name"
+// @Param name path string true "Module Name"
 // @Tags modules
 // @Success 200 {string} string "Module deleted successfully!"
 // @Router /modules/{module_name} [delete]
@@ -119,7 +119,7 @@ type PostBody struct {
 // @Description Add a new module
 // @Accept json
 // @Produce json
-// @Param module body ModuleConfig.ModuleConfig object "Module to be added"
+// @Param module body PostBody object "Module to be added"
 // @Tags modules
 // @Success 200 {string} string "Module added successfully"
 // @Router /modules [post]
