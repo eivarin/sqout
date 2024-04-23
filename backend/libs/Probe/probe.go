@@ -140,7 +140,9 @@ func RunProbeCMD(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFaca
 			if mc.Exe.Flags[flagName].Prefix != "" {
 				args = append(args, mc.Exe.Flags[flagName].Prefix)
 			}
-			args = append(args, flagValue)
+			if !mc.Exe.Flags[flagName].IsEmpty {
+				args = append(args, flagValue)
+			}
 		}
 	}
 	c1 := exec.Command(mc.Exe.CommandName, args...)

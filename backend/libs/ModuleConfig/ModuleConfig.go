@@ -15,7 +15,7 @@ import (
 type ModuleConfig struct {
 	Id      string `bson:"_id"`
 	Path    string `bson:"path"`
-	IsRepo  bool  `bson:"isRepo"`
+	IsRepo  bool   `bson:"isRepo"`
 	GitInfo struct {
 		Branch string `bson:"branch"`
 		Commit string `bson:"commit"`
@@ -24,19 +24,19 @@ type ModuleConfig struct {
 }
 
 type exe struct {
-	CommandName string `yaml:"command-name" bson:"commandName"`
-	Description string `yaml:"description" bson:"description"`
-	KeepAlive   bool   `yaml:"keep-alive" bson:"keepAlive"`
-	FlagsOrder []string `yaml:"flags-order" bson:"flagsOrder"`
+	CommandName string          `yaml:"command-name" bson:"commandName"`
+	Description string          `yaml:"description" bson:"description"`
+	KeepAlive   bool            `yaml:"keep-alive" bson:"keepAlive"`
+	FlagsOrder  []string        `yaml:"flags-order" bson:"flagsOrder"`
 	Flags       map[string]Flag `yaml:"flags" bson:"flags"`
 }
-
 
 type Flag struct {
 	Description string `yaml:"description"`
 	Type        string `yaml:"type"`
 	Required    bool   `yaml:"required"`
 	Prefix      string `yaml:"prefix"`
+	IsEmpty     bool   `yaml:"is-empty"`
 }
 
 func GetAllModules(ctx context.Context, mCol *DbApi.ColFacade) ([]ModuleConfig, error) {
@@ -131,7 +131,7 @@ func (mc *ModuleConfig) ChangeVersion(branch string, commit string) error {
 			runCMD(runningPath, []string{"git", "checkout", "."})
 			runCMD(runningPath, []string{"git", "fetch", "origin"})
 		}
-		if branch != ""{
+		if branch != "" {
 			mc.GitInfo.Branch = branch
 			runCMD(runningPath, []string{"git", "checkout", mc.GitInfo.Branch})
 			if commit == "" {
