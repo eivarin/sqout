@@ -14,6 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// @Probe struct
+
 type Probe struct {
 	Name             string            `bson:"_id"`
 	Description      string            `bson:"description"`

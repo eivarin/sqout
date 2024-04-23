@@ -1,0 +1,273 @@
+definitions:
+  ModuleConfig.Flag:
+    properties:
+      description:
+        type: string
+      prefix:
+        type: string
+      required:
+        type: boolean
+      type:
+        type: string
+    type: object
+  ModuleConfig.ModuleConfig:
+    properties:
+      exe:
+        $ref: '#/definitions/ModuleConfig.exe'
+      gitInfo:
+        properties:
+          branch:
+            type: string
+          commit:
+            type: string
+        type: object
+      id:
+        type: string
+      isRepo:
+        type: boolean
+      path:
+        type: string
+    type: object
+  ModuleConfig.exe:
+    properties:
+      commandName:
+        type: string
+      description:
+        type: string
+      flags:
+        additionalProperties:
+          $ref: '#/definitions/ModuleConfig.Flag'
+        type: object
+      flagsOrder:
+        items:
+          type: string
+        type: array
+      keepAlive:
+        type: boolean
+    type: object
+  probes.ProbeResponse:
+    properties:
+      _id:
+        type: string
+      alive:
+        type: boolean
+      description:
+        type: string
+      heartbitInterval:
+        type: integer
+      module:
+        type: string
+      options:
+        additionalProperties:
+          type: string
+        type: object
+      results:
+        description: swagger can't find type definitiion bson.a
+        items: {}
+        type: array
+    type: object
+  probes.postBody:
+    properties:
+      description:
+        type: string
+      heartbitInterval:
+        type: integer
+      moduleName:
+        type: string
+      name:
+        type: string
+      options:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: sqout a modular application, implement every metric you want
+  title: sqout
+  version: "1.0"
+paths:
+  /modules:
+    get:
+      consumes:
+      - application/json
+      description: Get JSON of all the modules
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array of existing modules
+          schema:
+            items:
+              $ref: '#/definitions/ModuleConfig.ModuleConfig'
+            type: array
+      summary: GET all the modules in the database
+      tags:
+      - modules
+    post:
+      consumes:
+      - application/json
+      description: Add a new module
+      parameters:
+      - description: Module to be added
+        in: body
+        name: module
+        schema:
+          $ref: '#/definitions/ModuleConfig.ModuleConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Module added successfully
+          schema:
+            type: string
+      summary: POST a new module in the database
+      tags:
+      - modules
+    put:
+      consumes:
+      - application/json
+      description: Update the JSON of the matching module
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Module updated successfully!
+          schema:
+            type: string
+      summary: PUT update a given module in the database
+      tags:
+      - modules
+  /modules/{module_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete the module with the given name
+      parameters:
+      - description: Module Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Module deleted successfully!
+          schema:
+            type: string
+      summary: DELETE a given module in the database
+      tags:
+      - modules
+    get:
+      consumes:
+      - application/json
+      description: Get JSON of a given module name
+      parameters:
+      - description: Module Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Module
+          schema:
+            $ref: '#/definitions/ModuleConfig.ModuleConfig'
+      summary: GET specific module in the database
+      tags:
+      - modules
+  /probes:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all probes
+      parameters:
+      - description: Include results in response
+        in: query
+        name: includeResults
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of probes
+          schema:
+            items:
+              $ref: '#/definitions/probes.ProbeResponse'
+            type: array
+      summary: GET all probes
+      tags:
+      - probes
+    post:
+      consumes:
+      - application/json
+      description: Create a new probe and run it
+      parameters:
+      - description: Probe information
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/probes.postBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Probe created successfully!
+          schema:
+            type: string
+      summary: POST a new probe on the database
+      tags:
+      - probes
+  /probes/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a probe by its name
+      parameters:
+      - description: Probe Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Probe deleted successfully!
+          schema:
+            type: string
+      summary: DELETE a probe by name
+      tags:
+      - probes
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific probe by its name
+      parameters:
+      - description: Probe Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Include results in response
+        in: query
+        name: includeResults
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Probe details
+          schema:
+            $ref: '#/definitions/probes.ProbeResponse'
+      summary: GET a specific probe by name
+      tags:
+      - probes
+swagger: "2.0"
