@@ -63,7 +63,7 @@ func GetOneModule(ctx context.Context, mCol *DbApi.ColFacade, id string) (Module
 	return mc, nil
 }
 
-func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branch string, commit string) error {
+func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branch string, commit string) (string, error) {
 	fmt.Println("Adding new module")
 	regex := regexp.MustCompile(`(https://)?(www\.)?(github\.com/[a-zA-Z0-9-]+/[a-zA-Z0-9-]+)`)
 	match := regex.FindStringSubmatch(path)
@@ -80,12 +80,17 @@ func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branc
 		cmd := exec.Command("git", "clone", path, mc.Path)
 		cmd.Run()
 	}
+	if(branch == ""){
+		branch = "main"
+	}
+	if(commit == ""){
+		commit = "HEAD"
+	}
 	mc.ChangeVersion(branch, commit)
-
 	res, _ := mCol.Col.InsertOne(ctx, mc)
 	id := res.InsertedID
 	fmt.Printf("Added module with id %v\n", id)
-	return nil
+	return mc.Id, nil
 }
 
 func Update(ctx context.Context, mCol *DbApi.ColFacade, Name string, Branch string, Commit string) error {
@@ -129,6 +134,9 @@ func (mc *ModuleConfig) ChangeVersion(branch string, commit string) error {
 		if branch != ""{
 			mc.GitInfo.Branch = branch
 			runCMD(runningPath, []string{"git", "checkout", mc.GitInfo.Branch})
+			if commit == "" {
+				commit = "HEAD"
+			}
 		}
 		if commit != "" {
 			mc.GitInfo.Commit = commit

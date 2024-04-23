@@ -27,6 +27,9 @@ func SetupRoutes(r *gin.Engine, s *State.State) {
 
 func (ms *moduleState) get(ctx *gin.Context) {
 	list, _ := ModuleConfig.GetAllModules(ctx, ms.ModulesCol)
+	if list == nil{
+		list = []ModuleConfig.ModuleConfig{}
+	}
 	ctx.JSON(http.StatusOK, list)
 }
 
@@ -87,7 +90,7 @@ func (ms *moduleState) post(ctx *gin.Context) {
 		fmt.Print("AAAAAAAAAAAAAAAAA	")
 	}
 
-	ModuleConfig.AddNewModule(ctx, ms.ModulesCol, body.Name, body.Branch, body.Commit)
+	name, _ := ModuleConfig.AddNewModule(ctx, ms.ModulesCol, body.Name, body.Branch, body.Commit)
 
-	ctx.JSON(http.StatusOK, "Module added successfully!")
+	ctx.JSON(http.StatusOK, name)
 }
