@@ -5,9 +5,9 @@ export default defineConfig({
 	server: {
 		host: "0.0.0.0",
 		hmr: {
-		  clientPort: 8080,
+		  clientPort: 5000,
 		},
-		port: 8080, 
+		port: 5000, 
 		watch: {
 		  usePolling: true,
 		},

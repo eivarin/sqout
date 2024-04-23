@@ -6,7 +6,7 @@
 
 
 <div class="h-16 w-full grid items-center">
-    <a href="/{probe.id}" class="round border-2 {state_class}  bg-info text-base-content w-56 justify-self-center h-full flex flex-col justify-around rounded-md shadow">
+    <a href="/probe/{probe.id}" class="round border-2 {state_class}  bg-info text-base-content w-56 justify-self-center h-full flex flex-col justify-around rounded-md shadow">
         <div class="">
             <div class="text-xl font-bold text-center">{probe.name}</div>
             <div class="text-sm pl-4">Type: {probe.type}</div>

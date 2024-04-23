@@ -17,7 +17,7 @@
 
 <div class="h-screen w-screen flex bg-base-100">
     <Body />
-    <div class="">
+    <div class="max-h-screen max-w-[calc(100vw-18rem)] grow overflow-auto">
         <slot />
     </div>
 </div>
