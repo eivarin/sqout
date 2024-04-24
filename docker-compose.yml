@@ -12,7 +12,7 @@ services:
   backend:
     build: ./backend
     environment:
-      MONGO_URI: mongodb://root:example@10.0.2.27:27017
+      MONGO_URI: mongodb://root:example@mongo:27017
     ports:
       - 8080:8080
     networks:
@@ -36,12 +36,15 @@ services:
     container_name: grafana
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - "3000:3000"
     networks:
       - sqout-net
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
 
 networks:
   sqout-net:

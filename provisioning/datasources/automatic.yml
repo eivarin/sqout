@@ -1,0 +1,18 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: yesoreyeram-infinity-datasource
+    orgId: 1
+
+datasources:
+  - name: yesoreyeram-infinity-datasource
+    type: yesoreyeram-infinity-datasource
+    access: proxy
+    url: ""
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: true
+    jsonData:
+      global_queries: []
+    readOnly: false
