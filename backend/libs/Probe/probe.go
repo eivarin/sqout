@@ -1,14 +1,16 @@
 package Probe
 
 import (
-	"bufio"
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"sqout/libs/DbApi"
 	"sqout/libs/ModuleConfig"
 	"sqout/libs/TimersMap"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -146,24 +148,25 @@ func RunProbeCMD(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFaca
 		}
 	}
 	c1 := exec.Command(mc.Exe.CommandName, args...)
-	c2 := exec.Command("bash", mc.Path+"/parse.sh")
-	// b := new(strings.Builder)
-	c2.Stdin, _ = c1.StdoutPipe()
-	pipe, _ := c2.StdoutPipe()
+	fmt.Printf("Running command: %s\n", c1.String())
+	c2 := exec.Command("bash", "-c", mc.Path+"/parse.sh")
+	fmt.Printf("Running command: %s\n", c2.String())
+	r, w := io.Pipe()
+	c1.Stdout = w
+	c2.Stdin = r
+
+	var b2, e2 bytes.Buffer
+	c2.Stdout = &b2
+	c2.Stderr = &e2
+	_ = c1.Start()
 	_ = c2.Start()
-	_ = c1.Run()
-	readr := bufio.NewReader(pipe)
-	resultStr := ""
-	for {
-		line, err := readr.ReadString('\n')
-		if err != nil {
-			break
-		}
-		resultStr += line
-	}
+	c1.Wait()
+	w.Close()
 	_ = c2.Wait()
+	// fmt.Printf("Command output: %s\n", b2.String())
+	// fmt.Printf("Command error: %s\n", e2.String())
 	var result bson.A
-	_ = bson.UnmarshalExtJSON([]byte(resultStr), true, &result)
+	_ = bson.UnmarshalExtJSON(b2.Bytes(), true, &result)
 	err = AddResult(ctx, pCol, p.Name, result)
 	if err != nil {
 		fmt.Println(err)
@@ -173,7 +176,8 @@ func RunProbeCMD(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFaca
 }
 
 func AddResult(ctx context.Context, pCol *DbApi.ColFacade, name string, result bson.A) error {
-	_, err := pCol.Col.UpdateOne(ctx, bson.M{"_id": name}, bson.M{"$push": bson.M{"results": bson.M{"$each": result}}})
+	timestamp := time.Now()
+	_, err := pCol.Col.UpdateOne(ctx, bson.M{"_id": name}, bson.M{"$push": bson.M{"results": bson.M{"timestamp": timestamp, "result": result}}})
 	return err
 }
 

@@ -37,6 +37,7 @@ type Flag struct {
 	Required    bool   `yaml:"required"`
 	Prefix      string `yaml:"prefix"`
 	IsEmpty     bool   `yaml:"is-empty"`
+	Default     string `yaml:"default"`
 }
 
 func GetAllModules(ctx context.Context, mCol *DbApi.ColFacade) ([]ModuleConfig, error) {
@@ -49,7 +50,7 @@ func GetAllModules(ctx context.Context, mCol *DbApi.ColFacade) ([]ModuleConfig, 
 		fmt.Println("Error getting all modules")
 		return nil, err
 	}
-	fmt.Printf("Got all modules: %v\n", modules)
+	// fmt.Printf("Got all modules: %v\n", modules)
 	return modules, nil
 }
 
@@ -75,15 +76,11 @@ func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branc
 		mc.Id = match[3]
 	}
 	mc.Path = "./modules/" + mc.Id
-	if _, err := os.Stat(mc.Path); os.IsNotExist(err) {
-		os.MkdirAll(mc.Path, os.ModePerm)
-		cmd := exec.Command("git", "clone", path, mc.Path)
-		cmd.Run()
-	}
-	if(branch == ""){
+	Clone(ctx, mCol, &mc, path)
+	if branch == "" {
 		branch = "main"
 	}
-	if(commit == ""){
+	if commit == "" {
 		commit = "HEAD"
 	}
 	mc.ChangeVersion(branch, commit)
@@ -91,6 +88,28 @@ func AddNewModule(ctx context.Context, mCol *DbApi.ColFacade, path string, branc
 	id := res.InsertedID
 	fmt.Printf("Added module with id %v\n", id)
 	return mc.Id, nil
+}
+
+func Clone(ctx context.Context, mCol *DbApi.ColFacade, mc *ModuleConfig, path string) bool {
+	if _, err := os.Stat(mc.Path); os.IsNotExist(err) {
+		os.MkdirAll(mc.Path, os.ModePerm)
+		cmd := exec.Command("git", "clone", path, mc.Path)
+		cmd.Run()
+		return true
+	}
+	return false
+}
+
+func SanitizeModulesByDB(ctx context.Context, mCol *DbApi.ColFacade) {
+	modules, _ := GetAllModules(ctx, mCol)
+	for _, module := range modules {
+		if module.IsRepo {
+			if Clone(ctx, mCol, &module, "https://"+module.Id) {
+				module.ChangeVersion(module.GitInfo.Branch, module.GitInfo.Commit)
+			}
+		}
+		module.Reload()
+	}
 }
 
 func Update(ctx context.Context, mCol *DbApi.ColFacade, Name string, Branch string, Commit string) error {
@@ -179,6 +198,7 @@ func (mc *ModuleConfig) Reload() error {
 	}
 	//run install.sh
 	cmdInstall := exec.Command("bash", mc.Path+"/install.sh")
+	fmt.Printf("Running install script for module %s\n", mc.Id)
 	err := cmdInstall.Run()
 	if err != nil {
 		fmt.Println("Error running install.sh")

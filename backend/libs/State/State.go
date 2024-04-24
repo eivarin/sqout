@@ -3,6 +3,7 @@ package State
 import (
 	"context"
 	"sqout/libs/DbApi"
+	"sqout/libs/ModuleConfig"
 	"sqout/libs/Probe"
 	"sqout/libs/TimersMap"
 
@@ -22,6 +23,7 @@ func InitState(c context.Context) *State {
 	s.ModulesCol = DbApi.NewColFacade(s.DbClient, "modules")
 	s.ProbesCol = DbApi.NewColFacade(s.DbClient, "probes")
 	s.Timers = TimersMap.NewTimersMap()
+	ModuleConfig.SanitizeModulesByDB(c, &s.ModulesCol)
 	Probe.RestartAllProbes(c, &s.ModulesCol, &s.ProbesCol, &s.Timers)
 	return s
 }
