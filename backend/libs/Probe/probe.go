@@ -24,7 +24,7 @@ type Probe struct {
 	Options          map[string]string `bson:"options"`
 	HeartbitInterval int               `bson:"heartbitInterval"`
 	Module           string            `bson:"module"`
-	Results          bson.A            `bson:"results"`
+	Results          []bson.M            `bson:"results"`
 	Alive            bool              `bson:"alive"`
 }
 
@@ -45,7 +45,7 @@ func NewProbe(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade,
 		Options:          options,
 		HeartbitInterval: heartbitInterval,
 		Module:           moduleName,
-		Results:          bson.A{},
+		Results:          []bson.M{},
 		Alive:            true,
 	}
 	_, err = pCol.Col.InsertOne(ctx, n)
