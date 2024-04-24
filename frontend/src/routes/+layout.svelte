@@ -21,7 +21,7 @@
 
 <div class="h-screen w-screen flex bg-base-100">
     <Body Probes={data.probes}/>
-    <div class="max-h-screen max-w-[calc(100vw-18rem)] grow overflow-auto">
+    <div class="max-h-screen max-w-[calc(100vw-18rem)] grow overflow-auto scrollbar">
         <slot />
     </div>
 </div>

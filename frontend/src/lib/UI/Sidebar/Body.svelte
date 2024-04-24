@@ -24,8 +24,9 @@
 			<span class="">Add Probe</span>
 		</a>
 	</div>
-	<div class="flex w-full items-center gap-2 pb-2">
-		<div class="w-1/2 pl-2">
+	<div class="flex w-full items-center gap-2 pb-2 px-2">
+		<!-- <div class="w-1/2"> -->
+		<div class="w-full">
 			<a class="btn btn-primary w-full" href="/modules">
 				<svg
 					width="24"
@@ -80,7 +81,7 @@
 				<span class="">Modules</span>
 			</a>
 		</div>
-		<div class="w-1/2 pr-2">
+		<div class="w-1/2 hidden">
 			<a class="btn btn-primary w-full" href="/settings">
 				<svg
 					width="24"

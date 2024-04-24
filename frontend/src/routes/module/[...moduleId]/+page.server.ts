@@ -3,8 +3,8 @@ import type { PageServerLoad } from './$types';
 import type { Module } from '$lib';
 // import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params }) => {
-	const url = 'http://localhost:8080/modules/' + encodeURIComponent(params.moduleId);
+export const load: PageServerLoad = async ({ params, locals }) => {
+	const url = `${locals.url}/modules/` + encodeURIComponent(params.moduleId);
 	const resp = await fetch(url);
 	const res: Module = await resp.json();
 	return {
@@ -13,8 +13,8 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	Reload: async ({ params }) => {
-		const resp = await fetch('http://localhost:8080/modules/', {
+	Reload: async ({ params, locals }) => {
+		const resp = await fetch(`${locals.url}/modules/`, {
 			method: 'PUT',
 			body: JSON.stringify({
 				Name: params.moduleId
@@ -22,12 +22,12 @@ export const actions = {
 		});
 		return await resp.status;
 	},
-	Checkout: async ({ params, request }) => {
+	Checkout: async ({ params, request, locals }) => {
 		const data = await request.formData();
 		const branch = data.get('branch');
 		const commit = data.get('commit');
 		console.log(`branch: ${branch}, commit: ${commit}`);
-		const resp = await fetch('http://localhost:8080/modules/', {
+		const resp = await fetch(`${locals.url}/modules/`, {
 			method: 'PUT',
 			body: JSON.stringify({
 				Name: params.moduleId,
@@ -37,8 +37,8 @@ export const actions = {
 		});
 		return await resp.status;
 	},
-	Delete: async ({ params }) => {
-		const url = 'http://localhost:8080/modules/' + encodeURIComponent(params.moduleId);
+	Delete: async ({ params, locals }) => {
+		const url = `${locals.url}/modules/` + encodeURIComponent(params.moduleId);
 		const resp = await fetch(url, {
 			method: 'DELETE'
 		});

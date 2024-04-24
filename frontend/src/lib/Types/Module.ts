@@ -3,6 +3,8 @@ export interface Flag {
     Type: string;
     Required: boolean;
     Prefix: string;
+    IsEmpty: boolean;
+    Default: string;
 };
 
 export interface Exe {

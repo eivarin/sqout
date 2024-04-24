@@ -20,7 +20,7 @@
 		module: m.Id,
 		options: {}
 	};
-	formValues.options = Object.fromEntries(flags.map(({ name }) => [name, '']));
+	formValues.options = Object.fromEntries(flags.map(({ name }) => [name, m.Exe.Flags[name].Default ?? '']));
 </script>
 
 <form method="POST" class="w-full">
@@ -72,9 +72,15 @@
 		{#each flags as { name, f }}
 			<label class="form-control grow px-4">
 				<div class="label">
-					<span class="label-text">{name}{f.Prefix != '' ? ` (${f.Prefix})` : ''}:</span>
+					<span class="label-text">{name}{f.Prefix != '' ? ` (${f.Prefix})` : ''}{f.Default != '' ? ` (Default is: ${f.Default})` : ''}:</span>
 					<span class="label-text text-xs">{f.Description}</span>
 				</div>
+				{#if f.IsEmpty}
+				<label class="label input cursor-pointer input-bordered">
+					<span class="-webkit-input-placeholder">Toggle</span> 
+					<input type="checkbox" class="checkbox" name={'options:' + name} bind:checked={formValues.options[name]}/>
+				</label>
+				{:else}
 				<input
 					type="text"
 					name={'options:' + name}
@@ -83,6 +89,7 @@
 					bind:value={formValues.options[name]}
 					required={f.Required}
 				/>
+				{/if}
 			</label>
 		{/each}
 	</div>
@@ -94,10 +101,12 @@
 		<textarea name="" id="" class="textarea input-bordered" disabled>
 {m.Exe.CommandName} {Object.entries(formValues.options)
     .map(([key, value]) => {
-        if (m.Exe.Flags[key].Required && value == '')
-            return `${m.Exe.Flags[key].Prefix} <${key}>`;
+		let f = m.Exe.Flags[key];
+        if (f.Required && value == '')
+            return `${f.Prefix} <${key}>`;
+		else if (f.IsEmpty && value!="") return `${f.Prefix}`;
         else if (value == '') return ``;
-        return `${m.Exe.Flags[key].Prefix} ${value}`;
+        return `${f.Prefix} ${value}`;
     })
     .join(' ')}
 		</textarea>
