@@ -1,8 +1,6 @@
 package main
 
-import (
-	"sqout/libs/GinTools"
-)
+import "sqout/libs/GinTools"
 
 // @title sqout
 // @version 1.0

@@ -9,14 +9,26 @@ services:
       - 27017:27017
     networks:
       - sqout-net
+    healthcheck:
+        test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+        interval: 5s
+        timeout: 10s
+        retries: 20
   backend:
     build: ./backend
     environment:
       MONGO_URI: mongodb://root:example@mongo:27017
+      BACKEND_DOCKER_URL: http://backend:8080
+      GRAFANA_DOCKER_URL: http://grafana:3000
     ports:
       - 8080:8080
     networks:
       - sqout-net
+    depends_on:
+      mongo:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
   frontend:
     build: ./frontend
     ports:
@@ -45,6 +57,11 @@ services:
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+        interval: 5s
+        timeout: 10s
+        retries: 20
 
 networks:
   sqout-net:

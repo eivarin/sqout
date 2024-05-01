@@ -8,6 +8,7 @@ import (
 	"io"
 	"os/exec"
 	"sqout/libs/DbApi"
+	"sqout/libs/Grafana"
 	"sqout/libs/ModuleConfig"
 	"sqout/libs/TimersMap"
 	"time"
@@ -24,11 +25,11 @@ type Probe struct {
 	Options          map[string]string `bson:"options"`
 	HeartbitInterval int               `bson:"heartbitInterval"`
 	Module           string            `bson:"module"`
-	Results          []bson.M            `bson:"results"`
+	Results          []bson.M          `bson:"results"`
 	Alive            bool              `bson:"alive"`
 }
 
-func NewProbe(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade, Timers *TimersMap.TimersMap, name string, description string, options map[string]string, heartbitInterval int, moduleName string) error {
+func NewProbe(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade, Timers *TimersMap.TimersMap, gs *Grafana.GrafanaState, name string, description string, options map[string]string, heartbitInterval int, moduleName string) error {
 	moduleconfig, err := ModuleConfig.GetOneModule(ctx, mCol, moduleName)
 	if err != nil {
 		return err
@@ -50,6 +51,7 @@ func NewProbe(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade,
 	}
 	_, err = pCol.Col.InsertOne(ctx, n)
 	go ActivateProbe(ctx, mCol, pCol, Timers, name)
+	gs.LoadDashboardForProbe(moduleconfig.Path+"/dashboard.json", n.Name)
 	return err
 }
 
@@ -101,12 +103,13 @@ func GetAllProbes(ctx context.Context, pCol *DbApi.ColFacade, includeResults boo
 	return probes, err
 }
 
-func DeleteProbe(ctx context.Context, pCol *DbApi.ColFacade, name string) error {
+func DeleteProbe(ctx context.Context, pCol *DbApi.ColFacade, gs *Grafana.GrafanaState, name string) error {
+	gs.DeleteDashboardOnGrafana(name)
 	_, err := pCol.Col.DeleteOne(ctx, bson.M{"_id": name})
 	return err
 }
 
-func RestartAllProbes(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade, Timers *TimersMap.TimersMap) {
+func RestartAllProbes(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.ColFacade, Timers *TimersMap.TimersMap, gs *Grafana.GrafanaState) {
 	probes, _ := GetAllProbes(ctx, pCol, false)
 	fmt.Println("Restarting all probes")
 	for _, p := range probes {
@@ -114,6 +117,8 @@ func RestartAllProbes(ctx context.Context, mCol *DbApi.ColFacade, pCol *DbApi.Co
 		if p.Alive {
 			go ActivateProbe(ctx, mCol, pCol, Timers, p.Name)
 		}
+		mc, _ := ModuleConfig.GetOneModule(ctx, mCol, p.Module)
+		gs.LoadDashboardForProbe(mc.Path+"/dashboard.json", p.Name)
 	}
 }
 

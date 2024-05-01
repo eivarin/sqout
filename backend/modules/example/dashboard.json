@@ -1,0 +1,10 @@
+{
+  "id": null,
+  "uid": null,
+  "title": "Example",
+  "tags": ["templated"],
+  "panels": [],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "refresh": "25s"
+}

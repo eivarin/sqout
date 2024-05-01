@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
 	import type { Module, Probe } from '$lib';
+	import GrafanaIcon from '$lib/UI/Icons/GrafanaIcon.svelte';
     export let data: { probe: Probe, module: Module };
     const p = data.probe
 	const m = data.module
@@ -107,5 +108,12 @@
 	<div class="grow p-4 flex gap-4">
 		<!-- <button type="submit" class="btn btn-info grow">Edit</button> -->
 		<button type="submit" formaction="?/Delete" class="btn btn-error grow">Delete</button>
+	</div>
+	<div class="grow pb-4 px-4 flex gap-4">
+		<!-- <button type="submit" class="btn btn-info grow">Edit</button> -->
+		<a href="/dashboard/{$page.params.probeId}" class="grow bg-[#F2F4F9] text-black flex justify-center items-center gap-1 h-[46px] rounded-lg">
+			<GrafanaIcon />
+			Grafana
+		</a>
 	</div>
 </form>

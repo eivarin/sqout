@@ -3,6 +3,7 @@ package State
 import (
 	"context"
 	"sqout/libs/DbApi"
+	"sqout/libs/Grafana"
 	"sqout/libs/ModuleConfig"
 	"sqout/libs/Probe"
 	"sqout/libs/TimersMap"
@@ -15,6 +16,7 @@ type State struct {
 	ModulesCol DbApi.ColFacade
 	ProbesCol  DbApi.ColFacade
 	Timers     TimersMap.TimersMap
+	GS         *Grafana.GrafanaState
 }
 
 func InitState(c context.Context) *State {
@@ -23,7 +25,8 @@ func InitState(c context.Context) *State {
 	s.ModulesCol = DbApi.NewColFacade(s.DbClient, "modules")
 	s.ProbesCol = DbApi.NewColFacade(s.DbClient, "probes")
 	s.Timers = TimersMap.NewTimersMap()
+	s.GS = Grafana.NewGrafanaState()
 	ModuleConfig.SanitizeModulesByDB(c, &s.ModulesCol)
-	Probe.RestartAllProbes(c, &s.ModulesCol, &s.ProbesCol, &s.Timers)
+	Probe.RestartAllProbes(c, &s.ModulesCol, &s.ProbesCol, &s.Timers, s.GS)
 	return s
 }

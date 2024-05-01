@@ -3,6 +3,7 @@ package probes
 import (
 	"net/http"
 	"sqout/libs/DbApi"
+	"sqout/libs/Grafana"
 	"sqout/libs/Probe"
 	"sqout/libs/State"
 	"sqout/libs/TimersMap"
@@ -25,6 +26,7 @@ type probeState struct {
 	ModulesCol *DbApi.ColFacade
 	ProbesCol  *DbApi.ColFacade
 	Timers     *TimersMap.TimersMap
+	GS         *Grafana.GrafanaState
 }
 
 func SetupRoutes(r *gin.Engine, s *State.State) {
@@ -32,6 +34,7 @@ func SetupRoutes(r *gin.Engine, s *State.State) {
 	ps.ModulesCol = &s.ModulesCol
 	ps.ProbesCol = &s.ProbesCol
 	ps.Timers = &s.Timers
+	ps.GS = s.GS
 	r.POST("/probes", ps.post)
 	r.GET("/probes", ps.get)
 	r.GET("/probes/:name", ps.getOne)
@@ -60,7 +63,7 @@ func (ps *probeState) post(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := Probe.NewProbe(ctx, ps.ModulesCol, ps.ProbesCol, ps.Timers, body.Name, body.Description, body.Options, body.HeartbitInterval, body.ModuleName)
+	err := Probe.NewProbe(ctx, ps.ModulesCol, ps.ProbesCol, ps.Timers, ps.GS, body.Name, body.Description, body.Options, body.HeartbitInterval, body.ModuleName)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -119,7 +122,7 @@ func (ps *probeState) getOne(ctx *gin.Context) {
 // @Router /probes/{name} [delete]
 func (ps *probeState) delete(c *gin.Context) {
 	name := c.Param("name")
-	err := Probe.DeleteProbe(c, ps.ProbesCol, name)
+	err := Probe.DeleteProbe(c, ps.ProbesCol, ps.GS, name)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
